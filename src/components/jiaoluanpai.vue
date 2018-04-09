@@ -21,11 +21,12 @@
        <el-button type="success" @click="outPutMonthData()"><i class="el-icon-view"></i>月度汇总</el-button>
       </el-form-item>
   </el-form>
-  <div v-show="!transforming">
+  <div v-show="!transforming"  @contextmenu="editJL($event)" @mouseover="allowDrop($event)" @dblclick="clear($event)">
     <JLselectPanel :JLs="jiaolus" :style="contentStyle"></JLselectPanel>
     <el-table
       :data="tableData"
        stripe
+      
        border
        v-loading="loading2"
         :element-loading-text="loading_text"
@@ -76,8 +77,9 @@
       label="日期">
     <el-table-column v-for='(date,index) in monthDays'  v-bind:key="index" v-bind:label="date.toString()">
         <template slot-scope="scope">
-          <div class="content-rowspan" :style="getStyle(scope.row.jiaolu[date])"  @contextmenu="editJL($event,date,scope.row,scope.$index)" @mouseover="allowDrop(date,scope.row)"  @dblclick="clear(date,scope.row)">         
-              <div class="dropdiv"   title="'交路工时:暂未开放此功能'">
+          <div class="content-rowspan" :style="getStyle(scope.row.jiaolu[date])"  :dindex="scope.$index" :ddate="date"
+              >         
+              <div class="dropdiv"  :dindex="scope.$index" :ddate="date" title="'交路工时:暂未开放此功能'">
                  {{scope.row.jiaolu[date]|measureJl}} </div>
           </div>
         </template>
@@ -270,12 +272,22 @@ export default {
         console.log(this.totalData[0]);
       },
 
-      editJL(event,date,row,index){
+      editJL(event){
+         
+          event.preventDefault();
+          let element=event.target;
+          console.log(element.getAttribute('class').indexOf('dropdiv')>-1,element)
+          if(element.getAttribute('class').indexOf('dropdiv')>-1){
+          }else{
+              return
+          }
+          let date=element.getAttribute('ddate');
+          let index=element.getAttribute('dindex')
+          let row=this.tableData[index];
           this.currentRow=row;
           this.currentRowDate=date;
           this.currentRowIndex=index;
-          
-          event.preventDefault();
+        
           if(!!row.jiaolu[date]){
               this.editJLObj=row.jiaolu[date].constructor===Array?row.jiaolu[date][0]:row.jiaolu[date];
           }else{
@@ -433,10 +445,23 @@ export default {
                       console.log(err)
                   })
         },
-        clear(date,row){//双击清空数据
+        clear(event){//双击清空数据
+             event.preventDefault();
+            let element=event.target||event.srcElement;
+           
+            if(element.getAttribute('class').indexOf('dropdiv')>-1){
+            }else{
+                return
+            }
+            let date=element.getAttribute('ddate');
+            let index=element.getAttribute('dindex')
+            let row=this.tableData[index];
+            if(!index){
+                return
+            }
+            console.log(row,date,index)
             //先取this.monthDays数组中1前面的长度
             row.jiaolu[date]=[];
-            console.log('已清空')
             row.workTime=(()=>{
                 let sum=0;
                 row.jiaolu.forEach((element,index,arr) => {
@@ -453,9 +478,22 @@ export default {
                 return sum;
             })()
         },
-        allowDrop(date,row){//判断状态，计算数据
-            //先取this.monthDays数组中1前面的长度
-            // console.log(this.monthDays)
+        allowDrop(event){//判断状态，计算数据
+            event.preventDefault();
+            let element=event.target||event.srcElement;
+            if(element.tagName==='UL'||element.tagName==='SPAN')return;
+        //尚待改进
+            if(element.getAttribute('class').indexOf('content-rowspan')>-1){
+            }else{
+                console.log('over')
+                return
+            }
+            let date=element.getAttribute('ddate');
+            let index=element.getAttribute('dindex')
+            let row=this.tableData[index];
+            if(!index){
+                return
+            }
             if(!!row.jiaolu[date]){
 
             }else{
