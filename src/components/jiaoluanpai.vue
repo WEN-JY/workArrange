@@ -151,7 +151,8 @@ export default {
   methods:{
       
       loadTiaotuJL(){
-          if(!!this.tiaotuEdition){
+         
+         if(!!this.tiaotuEdition){
             this.loading2=true;
             console.log('发起getInfo请求--来自交路安排主页面')
             this.$message({
