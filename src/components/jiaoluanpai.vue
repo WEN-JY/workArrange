@@ -21,7 +21,7 @@
        <el-button type="success" @click="outPutMonthData()"><i class="el-icon-view"></i>月度汇总</el-button>
       </el-form-item>
   </el-form>
-  <div v-show="!transforming"  @contextmenu="editJL($event)" @mouseover="allowDrop($event)" @dblclick="clear($event)">
+  <div v-show="!transforming"  @contextmenu="editJL($event)"  class="warper" @mouseover="allowDrop($event)" @dblclick="clear($event)">
     <JLselectPanel :JLs="jiaolus" :style="contentStyle"></JLselectPanel>
     <el-table
       :data="tableData"
@@ -482,10 +482,8 @@ export default {
             event.preventDefault();
             let element=event.target||event.srcElement;
             if(element.tagName==='UL'||element.tagName==='SPAN')return;
-        //尚待改进
-            if(element.getAttribute('class').indexOf('content-rowspan')>-1){
+            if(element.getAttribute('class').indexOf('content-rowspan')>-1||element.getAttribute('class').indexOf('dropdiv')>-1){
             }else{
-                console.log('over')
                 return
             }
             let date=element.getAttribute('ddate');
